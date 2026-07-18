@@ -1,16 +1,9 @@
-import os
-
 import gradio as gr
 from google import genai
 
-API_KEY = os.getenv("GEMINI_API_KEY")
+# Replace with your Gemini API key (Do NOT upload your real key to GitHub)
+client = genai.Client(api_key="YOUR_GEMINI_API_KEY")
 
-if not API_KEY:
-    raise ValueError(
-        "Please set the GEMINI_API_KEY environment variable."
-    )
-
-client = genai.Client(api_key=API_KEY)
 
 def review_code(code):
     if not code.strip():
@@ -38,3 +31,31 @@ Review the following Python code and provide:
 Code:
 ```python
 {code}
+
+"""
+
+try:
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
+    return response.text
+
+except Exception as e:
+    return f"Error: {e}"
+
+demo = gr.Interface(
+fn=review_code,
+inputs=gr.Textbox(
+lines=20,
+label="💻 Enter Python Code",
+placeholder="Paste your Python code here..."
+),
+outputs=gr.Markdown(label="📋 AI Review"),
+title="🤖 AI Code Reviewer (Gemini)",
+description="Paste your Python code and get an AI-powered review including bugs, improvements, security issues, and an improved version.",
+theme=gr.themes.Soft()
+)
+
+if name == "main":
+demo.launch(debug=True)
